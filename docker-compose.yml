@@ -1,0 +1,48 @@
+# Store Intelligence API — production-grade local stack
+# Usage:
+#   docker compose up --build
+#   curl http://localhost:8000/health
+
+name: store-intelligence
+
+services:
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: store-intelligence-api
+    ports:
+      - "8000:8000"
+    working_dir: /app
+    environment:
+      # SQLite persisted alongside Brigade CSV under the bind-mounted data/ tree
+      DATABASE_URL: sqlite+aiosqlite:///./data/store_intelligence.db
+      # Leave empty to activate VLM heuristic fallback out-of-the-box
+      GEMINI_API_KEY: ${GEMINI_API_KEY:-}
+      GEMINI_MODEL: ${GEMINI_MODEL:-gemini-3.5-flash}
+      LOG_LEVEL: ${LOG_LEVEL:-INFO}
+      CONFIDENCE_THRESHOLD: ${CONFIDENCE_THRESHOLD:-0.70}
+      REENTRY_CACHE_TTL_SECONDS: ${REENTRY_CACHE_TTL_SECONDS:-300}
+      BILLING_WINDOW_SECONDS: ${BILLING_WINDOW_SECONDS:-300}
+      INGEST_BATCH_SIZE: ${INGEST_BATCH_SIZE:-500}
+      STALE_FEED_THRESHOLD_SECONDS: ${STALE_FEED_THRESHOLD_SECONDS:-600}
+      ANOMALY_ZSCORE_THRESHOLD: ${ANOMALY_ZSCORE_THRESHOLD:-2.5}
+      ANOMALY_BASELINE_WINDOW: ${ANOMALY_BASELINE_WINDOW:-60}
+    volumes:
+      # Bind-mount preserves host ownership/permissions for CSV reads and SQLite WAL I/O
+      # (store_intelligence.db, -wal, -shm all live under ./data on the host)
+      - type: bind
+        source: ./data
+        target: /app/data
+        read_only: false
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          "python -c \"import sys, urllib.request; r=urllib.request.urlopen('http://127.0.0.1:8000/health', timeout=5); sys.exit(0 if r.status == 200 else 1)\"",
+        ]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 45s
+    restart: unless-stopped

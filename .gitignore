@@ -1,0 +1,60 @@
+# ── Python ────────────────────────────────────────────────────────────────────
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+*.egg
+*.egg-info/
+dist/
+build/
+.eggs/
+.Python
+pip-wheel-metadata/
+
+# ── Virtual environments ───────────────────────────────────────────────────────
+venv/
+.venv/
+env/
+.env/
+ENV/
+
+# ── Test & coverage artefacts ─────────────────────────────────────────────────
+.coverage
+.coverage.*
+coverage.xml
+htmlcov/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
+# ── SQLite runtime DB (generated at startup — never commit DB files) ───────────
+*.db
+*.db-wal
+*.db-shm
+data/*.db
+data/*.db-wal
+data/*.db-shm
+
+# ── Environment / secrets ──────────────────────────────────────────────────────
+.env
+.env.*
+!.env.example
+
+# ── Docker runtime ─────────────────────────────────────────────────────────────
+# (compose YAML and Dockerfile are intentionally committed)
+.docker/
+
+# ── OS noise ───────────────────────────────────────────────────────────────────
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# ── Editor artefacts ───────────────────────────────────────────────────────────
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+
+# ── Streamlit local state ──────────────────────────────────────────────────────
+.streamlit/secrets.toml
